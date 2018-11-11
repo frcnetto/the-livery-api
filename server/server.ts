@@ -5,14 +5,14 @@ import mongoose from 'mongoose';
 
 export class Server {
 
-    application: restify.Server | undefined
+    application!: restify.Server;
 
-    initializeDb() : Promise<any> {
-        (<any>mongoose).Promise = global.Promise;
+    initializeDb(): Promise<any> {
+        ( <any>mongoose ).Promise = global.Promise;
 
-        return mongoose.connect(environment.db.url, {
-            useMongoClient: true
-        });
+        return mongoose.connect( environment.db.url, {
+            useNewUrlParser: true
+        } );
     }
 
     initRouts( routers: Router[] ): Promise<any> {
