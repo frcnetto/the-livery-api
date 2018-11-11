@@ -63,6 +63,17 @@ class UsersRouter extends Router {
                     return next();
                 } );
         } );
+
+        application.del( this.usersIdNode, ( req, res, next ) => {
+            User.deleteOne( { _id: req.params.id } ).exec().then( result => {
+                console.log( result )
+                if ( result.n )
+                    res.send( 204 );
+                else
+                    res.send( 404 );
+                return next();
+            } );
+        } );
     }
 }
 
