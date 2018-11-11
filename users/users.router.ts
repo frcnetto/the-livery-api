@@ -3,15 +3,19 @@ import * as restify from 'restify';
 import { User } from './users.model';
 
 class UsersRouter extends Router {
+
+    usersNode = '/users';
+    usersIdNode = this.usersNode + '/:id';
+
     applyRoutes( application: restify.Server ) {
-        application.get( '/users', ( req, res, next ) => {
+        application.get( this.usersNode, ( req, res, next ) => {
             User.find().then( users => {
                 res.json( users );
                 return next;
             } );
         } );
 
-        application.get( '/users/:id', ( req, res, next ) => {
+        application.get( this.usersIdNode, ( req, res, next ) => {
             User.findById( req.params.id ).then( user => {
                 if ( user ) {
                     res.json( user );
@@ -22,7 +26,7 @@ class UsersRouter extends Router {
             } );
         } );
 
-        application.post( '/users', ( req, res, next ) => {
+        application.post( this.usersNode, ( req, res, next ) => {
             let user = new User( req.body );
             user.save().then( user => {
                 user.password = '*';
@@ -31,7 +35,7 @@ class UsersRouter extends Router {
             } );
         } );
 
-        application.put( '/users/:id', ( req, res, next ) => {
+        application.put( this.usersIdNode, ( req, res, next ) => {
             const options = { overwrite: true }
             User.update( { _id: req.params.id }, req.body, options )
                 .exec()
@@ -44,6 +48,18 @@ class UsersRouter extends Router {
                 } )
                 .then( user => {
                     res.json( user );
+                    return next();
+                } );
+        } );
+
+        application.patch( this.usersIdNode, ( req, res, next ) => {
+            const options = { new: true };
+            User.findByIdAndUpdate( req.params.id, req.body, options )
+                .then( user => {
+                    if ( user )
+                        res.json( user );
+                    else
+                        res.send( 404 );
                     return next();
                 } );
         } );

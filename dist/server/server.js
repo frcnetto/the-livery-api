@@ -1,18 +1,12 @@
 "use strict";
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const restify = __importStar(require("restify"));
-const environment_1 = require("../common/environment");
+const restify_1 = __importDefault(require("restify"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const environment_1 = require("../common/environment");
+const merge_patch_parser_1 = require("./merge-patch.parser");
 class Server {
     initializeDb() {
         mongoose_1.default.Promise = global.Promise;
@@ -23,12 +17,13 @@ class Server {
     initRouts(routers) {
         return new Promise((resolve, reject) => {
             try {
-                this.application = restify.createServer({
+                this.application = restify_1.default.createServer({
                     name: 'the-livery-api',
                     version: '0.0.1'
                 });
-                this.application.use(restify.plugins.queryParser());
-                this.application.use(restify.plugins.bodyParser());
+                this.application.use(restify_1.default.plugins.queryParser());
+                this.application.use(restify_1.default.plugins.bodyParser());
+                this.application.use(merge_patch_parser_1.mergePatchBodyParser);
                 routers.forEach(router => {
                     router.applyRoutes(this.application);
                 });
