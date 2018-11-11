@@ -1,0 +1,22 @@
+{
+  "name": "the-livery-api",
+  "version": "1.0.0",
+  "description": "A delivery API!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "delivery"
+  ],
+  "author": "Netto Cavalcante",
+  "license": "ISC",
+  "dependencies": {
+    "mongoose": "^5.3.11",
+    "restify": "^7.2.2"
+  },
+  "devDependencies": {
+    "@types/restify": "^7.2.6",
+    "@types/mongoose": "^5.3.1"
+  }
+}
