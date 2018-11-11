@@ -4,34 +4,26 @@ const router_1 = require("../common/router");
 const users_model_1 = require("./users.model");
 class UsersRouter extends router_1.Router {
     constructor() {
-        super(...arguments);
+        super();
         this.usersNode = '/users';
         this.usersIdNode = this.usersNode + '/:id';
+        this.on('beforeRender', document => {
+            document.password = undefined;
+        });
     }
     applyRoutes(application) {
         application.get(this.usersNode, (req, res, next) => {
-            users_model_1.User.find().then(users => {
-                res.json(users);
-                return next;
-            });
+            users_model_1.User.find()
+                .then(this.render(res, next));
         });
         application.get(this.usersIdNode, (req, res, next) => {
-            users_model_1.User.findById(req.params.id).then(user => {
-                if (user) {
-                    res.json(user);
-                    return next();
-                }
-                res.send(404);
-                return next();
-            });
+            users_model_1.User.findById(req.params.id)
+                .then(this.render(res, next));
         });
         application.post(this.usersNode, (req, res, next) => {
             let user = new users_model_1.User(req.body);
-            user.save().then(user => {
-                user.password = '*';
-                res.json(user);
-                return next();
-            });
+            user.save()
+                .then(this.render(res, next));
         });
         application.put(this.usersIdNode, (req, res, next) => {
             const options = { overwrite: true };
@@ -45,21 +37,12 @@ class UsersRouter extends router_1.Router {
                     res.send(404);
                 }
             })
-                .then(user => {
-                res.json(user);
-                return next();
-            });
+                .then(this.render(res, next));
         });
         application.patch(this.usersIdNode, (req, res, next) => {
             const options = { new: true };
             users_model_1.User.findByIdAndUpdate(req.params.id, req.body, options)
-                .then(user => {
-                if (user)
-                    res.json(user);
-                else
-                    res.send(404);
-                return next();
-            });
+                .then(this.render(res, next));
         });
         application.del(this.usersIdNode, (req, res, next) => {
             users_model_1.User.deleteOne({ _id: req.params.id }).exec().then(result => {
