@@ -1,6 +1,7 @@
 import { Router } from '../common/router'
 import * as restify from 'restify';
 import { User } from './users.model';
+import { NotFoundError } from 'restify-errors';
 
 class UsersRouter extends Router {
 
@@ -17,18 +18,21 @@ class UsersRouter extends Router {
     applyRoutes( application: restify.Server ) {
         application.get( this.usersNode, ( req, res, next ) => {
             User.find()
-                .then( this.render( res, next ) );
+                .then( this.render( res, next ) )
+                .catch( next );
         } );
 
         application.get( this.usersIdNode, ( req, res, next ) => {
             User.findById( req.params.id )
-                .then( this.render( res, next ) );
+                .then( this.render( res, next ) )
+                .catch( next );;
         } );
 
         application.post( this.usersNode, ( req, res, next ) => {
             let user = new User( req.body );
             user.save()
-                .then( this.render( res, next ) );
+                .then( this.render( res, next ) )
+                .catch( next );;
         } );
 
         application.put( this.usersIdNode, ( req, res, next ) => {
@@ -39,16 +43,18 @@ class UsersRouter extends Router {
                     if ( result.n ) {
                         return User.findById( req.params.id );
                     } else {
-                        res.send( 404 );
+                        throw new NotFoundError( 'Documento não encontrado.' );
                     }
                 } )
-                .then( this.render( res, next ) );
+                .then( this.render( res, next ) )
+                .catch( next );;
         } );
 
         application.patch( this.usersIdNode, ( req, res, next ) => {
             const options = { new: true };
             User.findByIdAndUpdate( req.params.id, req.body, options )
-                .then( this.render( res, next ) );
+                .then( this.render( res, next ) )
+                .catch( next );;
         } );
 
         application.del( this.usersIdNode, ( req, res, next ) => {
@@ -57,7 +63,7 @@ class UsersRouter extends Router {
                 if ( result.n )
                     res.send( 204 );
                 else
-                    res.send( 404 );
+                    throw new NotFoundError( 'Documento não encontrado.' );
                 return next();
             } );
         } );

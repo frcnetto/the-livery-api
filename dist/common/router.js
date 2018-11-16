@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const events_1 = require("events");
+const restify_errors_1 = require("restify-errors");
 class Router extends events_1.EventEmitter {
     render(res, next) {
         return (document) => {
@@ -9,7 +10,7 @@ class Router extends events_1.EventEmitter {
                 res.json(document);
             }
             else {
-                res.send(404);
+                throw new restify_errors_1.NotFoundError('Documento não encontrado.');
             }
             return next();
         };
