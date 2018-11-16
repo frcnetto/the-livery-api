@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { environment } from '../common/environment';
 import { Router } from '../common/router';
 import { mergePatchBodyParser } from './merge-patch.parser';
+import { errorHandler } from './error.handler';
 
 export class Server {
 
@@ -36,7 +37,9 @@ export class Server {
 
                 this.application.listen( environment.server.port, () => {
                     resolve( this.application );
-                } )
+                } );
+
+                this.application.on( 'restifyError', errorHandler )
 
             } catch ( error ) {
                 reject( error );
