@@ -13,6 +13,15 @@ exports.errorHandler = function (req, res, err, callback) {
             break;
         case 'ValidationError':
             err.statusCode = 400;
+            const messages = [];
+            for (let name in err.errors) {
+                messages.push({ message: err.errors[name].message });
+            }
+            ;
+            err.toJSON = () => ({
+                errors: messages
+            });
+            break;
         default:
             err.statusCode = 500;
             break;
