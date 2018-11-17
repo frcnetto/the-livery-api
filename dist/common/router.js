@@ -6,7 +6,7 @@ class Router extends events_1.EventEmitter {
     render(res, next) {
         return (document) => {
             if (document) {
-                this.emit('beforeRender', document);
+                this.emit('beforeRender', document);
                 res.json(document);
             }
             else {

@@ -1,5 +1,8 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
+
 import { validateCPF } from '../common/validators';
+import { environment } from '../common/environment';
 
 const Schema = mongoose.Schema;
 
@@ -56,5 +59,35 @@ const userSchema = new Schema( {
         default: 'no'
     }
 } );
+
+const saveMiddleware = function ( next ) {
+
+    const user: User = this;
+
+    if ( !user.isModified( 'password' ) )
+        next();
+    else
+        hashPassword( user, next );
+}
+
+const updateMiddeware = function ( next ) {
+
+    if ( !this.getUpdate().password )
+        next();
+    else
+        hashPassword( this.getUpdate, next );
+}
+
+const hashPassword = ( obj: any, next: any ) => {
+    bcrypt.hash( obj.password, environment.security.saltRound, function ( err, hash ) {
+        if ( !err )
+            obj.password = hash;
+        next();
+    } );
+}
+
+userSchema.pre( 'save', saveMiddleware );
+userSchema.pre( 'findOneAndUpdate', updateMiddeware );
+userSchema.pre( 'update', updateMiddeware );
 
 export const User = mongoose.model<User>( 'User', userSchema );

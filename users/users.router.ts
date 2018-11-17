@@ -1,5 +1,5 @@
 import { Router } from '../common/router'
-import * as restify from 'restify';
+import restify from 'restify';
 import { User } from './users.model';
 import { NotFoundError } from 'restify-errors';
 
@@ -25,18 +25,18 @@ class UsersRouter extends Router {
         application.get( this.usersIdNode, ( req, res, next ) => {
             User.findById( req.params.id )
                 .then( this.render( res, next ) )
-                .catch( next );;
+                .catch( next );
         } );
 
         application.post( this.usersNode, ( req, res, next ) => {
             let user = new User( req.body );
             user.save()
                 .then( this.render( res, next ) )
-                .catch( next );;
+                .catch( next );
         } );
 
         application.put( this.usersIdNode, ( req, res, next ) => {
-            const options = { overwrite: true }
+            const options = { runValidators: true, overwrite: true }
             User.update( { _id: req.params.id }, req.body, options )
                 .exec()
                 .then( result => {
@@ -47,14 +47,14 @@ class UsersRouter extends Router {
                     }
                 } )
                 .then( this.render( res, next ) )
-                .catch( next );;
+                .catch( next );
         } );
 
         application.patch( this.usersIdNode, ( req, res, next ) => {
-            const options = { new: true };
+            const options = { runValidators: true, new: true };
             User.findByIdAndUpdate( req.params.id, req.body, options )
                 .then( this.render( res, next ) )
-                .catch( next );;
+                .catch( next );
         } );
 
         application.del( this.usersIdNode, ( req, res, next ) => {
