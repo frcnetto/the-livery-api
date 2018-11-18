@@ -4,7 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 const validators_1 = require("../common/validators");
+const environment_1 = require("../common/environment");
 const Schema = mongoose_1.default.Schema;
 const userSchema = new Schema({
     name: {
@@ -50,4 +52,27 @@ const userSchema = new Schema({
         default: 'no'
     }
 });
+const saveMiddleware = function (next) {
+    const user = this;
+    if (!user.isModified('password'))
+        next();
+    else
+        hashPassword(user, next);
+};
+const updateMiddeware = function (next) {
+    if (!this.getUpdate().password)
+        next();
+    else
+        hashPassword(this.getUpdate, next);
+};
+const hashPassword = (obj, next) => {
+    bcrypt_1.default.hash(obj.password, environment_1.environment.security.saltRound, function (err, hash) {
+        if (!err)
+            obj.password = hash;
+        next();
+    });
+};
+userSchema.pre('save', saveMiddleware);
+userSchema.pre('findOneAndUpdate', updateMiddeware);
+userSchema.pre('update', updateMiddeware);
 exports.User = mongoose_1.default.model('User', userSchema);
