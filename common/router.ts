@@ -6,7 +6,7 @@ export abstract class Router extends EventEmitter {
     abstract applyRoutes( application: restify.Server ): any;
 
     render( res: restify.Response, next: restify.Next ) {
-        return ( document ) => {
+        return ( document: any ) => {
             if ( document ) {
                 this.emit( 'beforeRender', document );
                 res.json( document );

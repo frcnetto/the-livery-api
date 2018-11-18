@@ -60,7 +60,7 @@ const userSchema = new Schema( {
     }
 } );
 
-const saveMiddleware = function ( next ) {
+const saveMiddleware = function ( next: any ) {
 
     const user: User = this;
 
@@ -70,7 +70,7 @@ const saveMiddleware = function ( next ) {
         hashPassword( user, next );
 }
 
-const updateMiddeware = function ( next ) {
+const updateMiddeware = function ( next: any ) {
 
     if ( !this.getUpdate().password )
         next();
