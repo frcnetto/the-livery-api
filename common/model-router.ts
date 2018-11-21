@@ -5,8 +5,13 @@ import { NotFoundError } from "restify-errors";
 
 
 export abstract class ModelRouter<D extends mongoose.Document> extends Router {
+
     constructor ( protected model: mongoose.Model<D> ) {
         super();
+    }
+
+    protected prepareOne( query: mongoose.DocumentQuery<D, D> ): mongoose.DocumentQuery<D, D> {
+        return query;
     }
 
     validateId = ( req: restify.Request, res: restify.Response, next: restify.Next ) => {
@@ -23,7 +28,7 @@ export abstract class ModelRouter<D extends mongoose.Document> extends Router {
     }
 
     findById = ( req: restify.Request, res: restify.Response, next: restify.Next ) => {
-        this.model.findById( req.params.id )
+        this.prepareOne( this.model.findById( req.params.id ) )
             .then( this.render( res, next ) )
             .catch( next );
     }
