@@ -17,7 +17,8 @@ class UsersRouter extends ModelRouter<User> {
 
     findByEmail = ( req: restify.Request, res: restify.Response, next: restify.Next ) => {
         if ( req.query.email )
-            User.find( { email: req.query.email } )
+            User.findByEmail( req.query.email )
+                .then( user => user ? [ user ] : [] )
                 .then( this.renderAll( res, next ) )
                 .catch( next );
         else
@@ -29,8 +30,6 @@ class UsersRouter extends ModelRouter<User> {
             { version: '1.0.0', handler: this.findAll },
             { version: '2.0.0', handler: [ this.findByEmail, this.findAll ] }
         ] ) );
-
-        //application.get( { path: this.usersNode, version: '2.0.0' }, [ this.findByEmail, this.findAll ] );
 
         application.get( this.usersIdNode, [ this.validateId, this.findById ] );
 

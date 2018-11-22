@@ -13,7 +13,8 @@ class UsersRouter extends model_router_1.ModelRouter {
         this.usersIdNode = this.usersNode + '/:id';
         this.findByEmail = (req, res, next) => {
             if (req.query.email)
-                users_model_1.User.find({ email: req.query.email })
+                users_model_1.User.findByEmail(req.query.email)
+                    .then(user => user ? [user] : [])
                     .then(this.renderAll(res, next))
                     .catch(next);
             else
@@ -28,7 +29,6 @@ class UsersRouter extends model_router_1.ModelRouter {
             { version: '1.0.0', handler: this.findAll },
             { version: '2.0.0', handler: [this.findByEmail, this.findAll] }
         ]));
-        //application.get( { path: this.usersNode, version: '2.0.0' }, [ this.findByEmail, this.findAll ] );
         application.get(this.usersIdNode, [this.validateId, this.findById]);
         application.post(this.usersNode, this.save);
         application.put(this.usersIdNode, [this.validateId, this.replace]);

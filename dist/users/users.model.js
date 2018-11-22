@@ -52,6 +52,9 @@ const userSchema = new Schema({
         default: 'no'
     }
 });
+userSchema.statics.findByEmail = function (email) {
+    return this.findOne({ email });
+};
 const saveMiddleware = function (next) {
     const user = this;
     if (!user.isModified('password'))
