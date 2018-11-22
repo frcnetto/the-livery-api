@@ -1,5 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const restify_1 = __importDefault(require("restify"));
 const users_model_1 = require("./users.model");
 const model_router_1 = require("../common/model-router");
 class UsersRouter extends model_router_1.ModelRouter {
@@ -7,12 +11,24 @@ class UsersRouter extends model_router_1.ModelRouter {
         super(users_model_1.User);
         this.usersNode = '/users';
         this.usersIdNode = this.usersNode + '/:id';
+        this.findByEmail = (req, res, next) => {
+            if (req.query.email)
+                users_model_1.User.find({ email: req.query.email })
+                    .then(this.renderAll(res, next))
+                    .catch(next);
+            else
+                next();
+        };
         this.on('beforeRender', document => {
             document.password = undefined;
         });
     }
     applyRoutes(application) {
-        application.get(this.usersNode, this.findAll);
+        application.get(this.usersNode, restify_1.default.plugins.conditionalHandler([
+            { version: '1.0.0', handler: this.findAll },
+            { version: '2.0.0', handler: [this.findByEmail, this.findAll] }
+        ]));
+        //application.get( { path: this.usersNode, version: '2.0.0' }, [ this.findByEmail, this.findAll ] );
         application.get(this.usersIdNode, [this.validateId, this.findById]);
         application.post(this.usersNode, this.save);
         application.put(this.usersIdNode, [this.validateId, this.replace]);
