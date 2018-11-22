@@ -15,6 +15,10 @@ export interface User extends mongoose.Document {
     active: boolean
 }
 
+export interface UserModel extends mongoose.Model<User> {
+    findByEmail( email: string ): Promise<User>;
+}
+
 const userSchema = new Schema( {
     name: {
         type: String,
@@ -60,6 +64,10 @@ const userSchema = new Schema( {
     }
 } );
 
+userSchema.statics.findByEmail = function ( email: string ) {
+    return this.findOne( { email } );
+}
+
 const saveMiddleware = function ( next: any ) {
 
     const user: User = this;
@@ -90,4 +98,4 @@ userSchema.pre( 'save', saveMiddleware );
 userSchema.pre( 'findOneAndUpdate', updateMiddeware );
 userSchema.pre( 'update', updateMiddeware );
 
-export const User = mongoose.model<User>( 'User', userSchema );
+export const User = mongoose.model<User, UserModel>( 'User', userSchema );
