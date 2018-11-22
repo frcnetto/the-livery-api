@@ -5,8 +5,6 @@ const reviews_model_1 = require("./reviews.model");
 class ReviewsRouter extends model_router_1.ModelRouter {
     constructor() {
         super(reviews_model_1.Review);
-        this.reviewsNode = '/Reviews';
-        this.reviewsIdNode = this.reviewsNode + '/:id';
         this.findByIdAndPopulate = (req, res, next) => {
             this.model.findById(req.params.id)
                 .populate('user', 'name')
@@ -20,10 +18,18 @@ class ReviewsRouter extends model_router_1.ModelRouter {
             .populate('user', 'name')
             .populate('restaurant');
     }
+    envelope(document) {
+        let resource = super.envelope(document);
+        const restaurantId = document.restaurant._id ? document.restaurant._id : document.restaurant;
+        resource._links.restaurant = `$/restaurants/${restaurantId}`;
+        const userId = document.user._id ? document.user._id : document.user;
+        resource._links.user = `$/users/${userId}`;
+        return resource;
+    }
     applyRoutes(application) {
-        application.get(this.reviewsNode, this.findAll);
-        application.get(this.reviewsIdNode, [this.validateId, this.findById]);
-        application.post(this.reviewsNode, this.save);
+        application.get(this.basePath, this.findAll);
+        application.get(this.baseIdPath, [this.validateId, this.findById]);
+        application.post(this.basePath, this.save);
     }
 }
 exports.reviewsRouter = new ReviewsRouter();

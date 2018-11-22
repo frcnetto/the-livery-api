@@ -6,9 +6,7 @@ const restify_errors_1 = require("restify-errors");
 class RestaurantsRouter extends model_router_1.ModelRouter {
     constructor() {
         super(restaurant_model_1.Restaurant);
-        this.restaurantsNode = '/restaurants';
-        this.restaurantsIdNode = this.restaurantsNode + '/:id';
-        this.restaurantsIdMenuNode = this.restaurantsIdNode + '/menu';
+        this.restaurantsIdMenuNode = this.baseIdPath + '/menu';
         this.findMenu = (req, res, next) => {
             restaurant_model_1.Restaurant.findById(req.params.id, '+menu')
                 .then(restaurant => {
@@ -33,13 +31,18 @@ class RestaurantsRouter extends model_router_1.ModelRouter {
                 .catch(next);
         };
     }
+    envelope(document) {
+        let resource = super.envelope(document);
+        resource._links.menu = `${this.basePath}/${resource._id}/menu`;
+        return resource;
+    }
     applyRoutes(application) {
-        application.get(this.restaurantsNode, this.findAll);
-        application.get(this.restaurantsIdNode, [this.validateId, this.findById]);
-        application.post(this.restaurantsNode, this.save);
-        application.put(this.restaurantsIdNode, [this.validateId, this.replace]);
-        application.patch(this.restaurantsIdNode, [this.validateId, this.update]);
-        application.del(this.restaurantsIdNode, [this.validateId, this.delete]);
+        application.get(this.basePath, this.findAll);
+        application.get(this.baseIdPath, [this.validateId, this.findById]);
+        application.post(this.basePath, this.save);
+        application.put(this.baseIdPath, [this.validateId, this.replace]);
+        application.patch(this.baseIdPath, [this.validateId, this.update]);
+        application.del(this.baseIdPath, [this.validateId, this.delete]);
         application.get(this.restaurantsIdMenuNode, [this.validateId, this.findMenu]);
         application.put(this.restaurantsIdMenuNode, [this.validateId, this.replaceMenu]);
     }
