@@ -6,12 +6,24 @@ import { NotFoundError } from "restify-errors";
 
 export abstract class ModelRouter<D extends mongoose.Document> extends Router {
 
+    basePath: string;
+    baseIdPath: string;
+
     constructor ( protected model: mongoose.Model<D> ) {
         super();
+        this.basePath = `/${this.model.collection.name}`;
+        this.baseIdPath = `/${this.model.collection.name}/:id`;
     }
 
     protected prepareOne( query: mongoose.DocumentQuery<D, D> ): mongoose.DocumentQuery<D, D> {
         return query;
+    }
+
+    envelope( document: any ): any {
+        console.log( document )
+        let resource = Object.assign( { _links: {} }, document.toJSON() );
+        resource._links.self = `${this.basePath}/${resource._id}`;
+        return resource;
     }
 
     validateId = ( req: restify.Request, res: restify.Response, next: restify.Next ) => {
@@ -23,7 +35,7 @@ export abstract class ModelRouter<D extends mongoose.Document> extends Router {
 
     findAll = ( req: restify.Request, res: restify.Response, next: restify.Next ) => {
         this.model.find()
-            .then( this.render( res, next ) )
+            .then( this.renderAll( res, next ) )
             .catch( next );
     }
 

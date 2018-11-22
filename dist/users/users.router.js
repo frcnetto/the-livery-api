@@ -9,8 +9,6 @@ const model_router_1 = require("../common/model-router");
 class UsersRouter extends model_router_1.ModelRouter {
     constructor() {
         super(users_model_1.User);
-        this.usersNode = '/users';
-        this.usersIdNode = this.usersNode + '/:id';
         this.findByEmail = (req, res, next) => {
             if (req.query.email)
                 users_model_1.User.findByEmail(req.query.email)
@@ -25,15 +23,15 @@ class UsersRouter extends model_router_1.ModelRouter {
         });
     }
     applyRoutes(application) {
-        application.get(this.usersNode, restify_1.default.plugins.conditionalHandler([
+        application.get(this.basePath, restify_1.default.plugins.conditionalHandler([
             { version: '1.0.0', handler: this.findAll },
             { version: '2.0.0', handler: [this.findByEmail, this.findAll] }
         ]));
-        application.get(this.usersIdNode, [this.validateId, this.findById]);
-        application.post(this.usersNode, this.save);
-        application.put(this.usersIdNode, [this.validateId, this.replace]);
-        application.patch(this.usersIdNode, [this.validateId, this.update]);
-        application.del(this.usersIdNode, [this.validateId, this.delete]);
+        application.get(this.baseIdPath, [this.validateId, this.findById]);
+        application.post(this.basePath, this.save);
+        application.put(this.baseIdPath, [this.validateId, this.replace]);
+        application.patch(this.baseIdPath, [this.validateId, this.update]);
+        application.del(this.baseIdPath, [this.validateId, this.delete]);
     }
 }
 exports.usersRouter = new UsersRouter();

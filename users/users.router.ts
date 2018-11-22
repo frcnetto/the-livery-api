@@ -5,9 +5,6 @@ import { ModelRouter } from '../common/model-router';
 
 class UsersRouter extends ModelRouter<User> {
 
-    usersNode = '/users';
-    usersIdNode = this.usersNode + '/:id';
-
     constructor () {
         super( User );
         this.on( 'beforeRender', document => {
@@ -26,20 +23,20 @@ class UsersRouter extends ModelRouter<User> {
     }
 
     applyRoutes( application: restify.Server ) {
-        application.get( this.usersNode, restify.plugins.conditionalHandler( [
+        application.get( this.basePath, restify.plugins.conditionalHandler( [
             { version: '1.0.0', handler: this.findAll },
             { version: '2.0.0', handler: [ this.findByEmail, this.findAll ] }
         ] ) );
 
-        application.get( this.usersIdNode, [ this.validateId, this.findById ] );
+        application.get( this.baseIdPath, [ this.validateId, this.findById ] );
 
-        application.post( this.usersNode, this.save );
+        application.post( this.basePath, this.save );
 
-        application.put( this.usersIdNode, [ this.validateId, this.replace ] );
+        application.put( this.baseIdPath, [ this.validateId, this.replace ] );
 
-        application.patch( this.usersIdNode, [ this.validateId, this.update ] );
+        application.patch( this.baseIdPath, [ this.validateId, this.update ] );
 
-        application.del( this.usersIdNode, [ this.validateId, this.delete ] );
+        application.del( this.baseIdPath, [ this.validateId, this.delete ] );
     }
 }
 
