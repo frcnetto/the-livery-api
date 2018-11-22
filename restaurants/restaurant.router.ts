@@ -6,12 +6,16 @@ import { NotFoundError } from 'restify-errors';
 
 class RestaurantsRouter extends ModelRouter<Restaurant> {
 
-    restaurantsNode = '/restaurants';
-    restaurantsIdNode = this.restaurantsNode + '/:id';
-    restaurantsIdMenuNode = this.restaurantsIdNode + '/menu';
+    restaurantsIdMenuNode = this.baseIdPath + '/menu';
 
     constructor () {
         super( Restaurant );
+    }
+
+    envelope( document: any ): any {
+        let resource = super.envelope( document );
+        resource._links.menu = `${this.basePath}/${resource._id}/menu`;
+        return resource;
     }
 
     findMenu = ( req: restify.Request, res: restify.Response, next: restify.Next ) => {
@@ -47,17 +51,17 @@ class RestaurantsRouter extends ModelRouter<Restaurant> {
 
     applyRoutes( application: restify.Server ) {
 
-        application.get( this.restaurantsNode, this.findAll );
+        application.get( this.basePath, this.findAll );
 
-        application.get( this.restaurantsIdNode, [ this.validateId, this.findById ] );
+        application.get( this.baseIdPath, [ this.validateId, this.findById ] );
 
-        application.post( this.restaurantsNode, this.save );
+        application.post( this.basePath, this.save );
 
-        application.put( this.restaurantsIdNode, [ this.validateId, this.replace ] );
+        application.put( this.baseIdPath, [ this.validateId, this.replace ] );
 
-        application.patch( this.restaurantsIdNode, [ this.validateId, this.update ] );
+        application.patch( this.baseIdPath, [ this.validateId, this.update ] );
 
-        application.del( this.restaurantsIdNode, [ this.validateId, this.delete ] );
+        application.del( this.baseIdPath, [ this.validateId, this.delete ] );
 
         application.get( this.restaurantsIdMenuNode, [ this.validateId, this.findMenu ] );
 

@@ -18,7 +18,7 @@ class ModelRouter extends router_1.Router {
         };
         this.findAll = (req, res, next) => {
             this.model.find()
-                .then(this.render(res, next))
+                .then(this.renderAll(res, next))
                 .catch(next);
         };
         this.findById = (req, res, next) => {
@@ -63,9 +63,17 @@ class ModelRouter extends router_1.Router {
                 return next();
             });
         };
+        this.basePath = `/${this.model.collection.name}`;
+        this.baseIdPath = `/${this.model.collection.name}/:id`;
     }
     prepareOne(query) {
         return query;
+    }
+    envelope(document) {
+        console.log(document);
+        let resource = Object.assign({ _links: {} }, document.toJSON());
+        resource._links.self = `${this.basePath}/${resource._id}`;
+        return resource;
     }
 }
 exports.ModelRouter = ModelRouter;

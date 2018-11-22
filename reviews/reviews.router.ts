@@ -5,9 +5,6 @@ import { Review } from "./reviews.model";
 
 class ReviewsRouter extends ModelRouter<Review> {
 
-    reviewsNode = '/Reviews';
-    reviewsIdNode = this.reviewsNode + '/:id';
-
     constructor () {
         super( Review );
     }
@@ -16,6 +13,18 @@ class ReviewsRouter extends ModelRouter<Review> {
         return query
             .populate( 'user', 'name' )
             .populate( 'restaurant' );
+    }
+
+    envelope( document: any ): any {
+        let resource = super.envelope( document );
+
+        const restaurantId = document.restaurant._id ? document.restaurant._id : document.restaurant;
+        resource._links.restaurant = `$/restaurants/${restaurantId}`;
+
+        const userId = document.user._id ? document.user._id : document.user;
+        resource._links.user = `$/users/${userId}`;
+
+        return resource;
     }
 
     findByIdAndPopulate = ( req: restify.Request, res: restify.Response, next: restify.Next ) => {
@@ -27,11 +36,11 @@ class ReviewsRouter extends ModelRouter<Review> {
     }
 
     applyRoutes( application: restify.Server ) {
-        application.get( this.reviewsNode, this.findAll );
+        application.get( this.basePath, this.findAll );
 
-        application.get( this.reviewsIdNode, [ this.validateId, this.findById ] );
+        application.get( this.baseIdPath, [ this.validateId, this.findById ] );
 
-        application.post( this.reviewsNode, this.save );
+        application.post( this.basePath, this.save );
 
     }
 }
